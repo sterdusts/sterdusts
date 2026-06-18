@@ -1,12 +1,10 @@
 # sterdusts
 
-[English](#en) | [中文](#zh) | [한국어](#ko)
+[English](#english-version) | [中文](#中文) | [한국어](#한국어)
 
 ---
 
-<a id="en"></a>
-
-# English Version
+## English Version
 
 Hi, I am sterdusts.
 
@@ -62,13 +60,12 @@ I care more about problem framing, product judgment, and the ability to turn ide
 
 Right now, I am exploring the intersection of AI, quantitative research, education products, and personal learning systems.
 
-[Back to top](#sterdusts)
-
 ---
 
-<a id="zh"></a>
+<details>
+<summary>中文</summary>
 
-# 中文版
+## 中文版
 
 你好，我是 sterdusts。
 
@@ -124,13 +121,14 @@ Right now, I am exploring the intersection of AI, quantitative research, educati
 
 目前我正在尝试把 AI、量化、教育产品和个人学习系统连接起来，做一些真正能落地的东西。
 
-[Back to top](#sterdusts)
+</details>
 
 ---
 
-<a id="ko"></a>
+<details>
+<summary>한국어</summary>
 
-# 한국어 버전
+## 한국어 버전
 
 안녕하세요. 저는 sterdusts입니다.
 
@@ -186,4 +184,4 @@ Right now, I am exploring the intersection of AI, quantitative research, educati
 
 현재는 AI, 퀀트 리서치, 교육 제품, 개인 학습 시스템이 만나는 지점을 탐색하고 있습니다.
 
-[Back to top](#sterdusts)
+</details>
