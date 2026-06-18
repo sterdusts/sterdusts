@@ -1,4 +1,4 @@
-```md
+
 # sterdusts
 
 [English](#english-version) | [中文](#zh) | [한국어](#ko)
@@ -175,4 +175,6 @@ Right now, I am exploring the intersection of AI, quantitative research, educati
 지금은 AI, 퀀트 리서치, 교육 제품, 개인 학습 시스템이 만나는 지점을 탐색하고 있습니다.
 
 </details>
-```
+:::
+
+关键点：**README 里不能有开头的 ```md，也不能有结尾的 ```。**
