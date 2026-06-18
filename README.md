@@ -46,9 +46,9 @@ I care about turning vague ideas and real-world problems into systems that can b
 
 ## Learning Log
 
-| Repository      | Description                                                                            |
-| --------------- | -------------------------------------------------------------------------------------- |
-| CS-Learning-Log | Learning records for deep learning, algorithms, operating systems, and Python practice |
+| Repository                                                      | Description                                                                            |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [CS-Learning-Log](https://github.com/sterdusts/CS-Learning-Log) | Learning records for deep learning, algorithms, operating systems, and Python practice |
 
 ---
 
@@ -122,9 +122,9 @@ Some early repositories may look rough, but they are part of my starting point �
 
 ## 学习记录
 
-| 仓库              | 简介                       |
-| --------------- | ------------------------ |
-| CS-Learning-Log | 深度学习、算法、操作系统、Python 练习记录 |
+| 仓库                                                              | 简介                       |
+| --------------------------------------------------------------- | ------------------------ |
+| [CS-Learning-Log](https://github.com/sterdusts/CS-Learning-Log) | 深度学习、算法、操作系统、Python 练习记录 |
 
 ---
 
@@ -200,9 +200,9 @@ Some early repositories may look rough, but they are part of my starting point �
 
 ## 학습 기록
 
-| 저장소             | 설명                            |
-| --------------- | ----------------------------- |
-| CS-Learning-Log | 딥러닝, 알고리즘, 운영체제, Python 연습 기록 |
+| 저장소                                                             | 설명                            |
+| --------------------------------------------------------------- | ----------------------------- |
+| [CS-Learning-Log](https://github.com/sterdusts/CS-Learning-Log) | 딥러닝, 알고리즘, 운영체제, Python 연습 기록 |
 
 ---
 
