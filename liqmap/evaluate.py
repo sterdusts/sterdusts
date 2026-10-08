@@ -60,7 +60,7 @@ def ic_series(p, fac, target):
     q = p.select("t", fac, target).drop_nulls().filter(pl.col(fac).is_finite() & pl.col(target).is_finite())
     q = q.filter(pl.len().over("t") >= MIN_NAMES)
     return (q.group_by("t").agg(pl.corr(pl.col(fac).rank(), pl.col(target).rank()).alias("ic"),
-                                pl.len().alias("n")).sort("t").drop_nulls())
+                                pl.len().alias("n")).sort("t").drop_nulls().filter(pl.col("ic").is_not_nan()))
 
 
 def spread_series(p, fac, target, q_=0.2):
