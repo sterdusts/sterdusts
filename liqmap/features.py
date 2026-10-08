@@ -69,7 +69,7 @@ def _job(args):
         return None
 
 
-def build_panel(churn=0.05, lev_w=None, lev=None, tag="base", procs=4):
+def build_panel(churn=0.05, lev_w=None, lev=None, tag="base", procs=3):
     u = pl.read_parquet(f"{DATA}/universe.parquet").with_columns(pl.col("d").alias("month"))
     syms = sorted(u["symbol"].unique().to_list())
     syms = [s for s in syms if os.path.exists(f"{DATA}/metrics/{s}.parquet")
