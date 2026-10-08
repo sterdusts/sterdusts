@@ -5,6 +5,7 @@ import polars as pl
 
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
 OUT = sys.argv[2] if len(sys.argv) > 2 else "/home/user/data/hl_snapshot.parquet"
+MODE = sys.argv[3] if len(sys.argv) > 3 else "top"
 
 
 async def main():
@@ -12,7 +13,17 @@ async def main():
         async with s.get("https://stats-data.hyperliquid.xyz/Mainnet/leaderboard") as r:
             rows = (await r.json(content_type=None))["leaderboardRows"]
         rows.sort(key=lambda x: -float(x["accountValue"]))
-        users = [r["ethAddress"] for r in rows[:N]]
+        if MODE == "top":
+            users = [r["ethAddress"] for r in rows[:N]]
+        else:  # 分层抽样：排除前 1500 大户，账户价值 > $1000，按规模十分位各抽 N/10
+            import random
+            random.seed(1)
+            rest = [r for r in rows[1500:] if float(r["accountValue"]) > 1000]
+            k = len(rest) // 10
+            users = []
+            for i in range(10):
+                chunk = rest[i * k:(i + 1) * k]
+                users += [r["ethAddress"] for r in random.sample(chunk, min(N // 10, len(chunk)))]
         async with s.post("https://api.hyperliquid.xyz/info", json={"type": "allMids"}) as r:
             mids = {k: float(v) for k, v in (await r.json()).items()}
         out, sem = [], asyncio.Semaphore(4)
