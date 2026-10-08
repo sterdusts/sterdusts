@@ -19,7 +19,10 @@ FACS = {
     "h2_net4h_rel": "H2 级联反转：4h 净清算 / 30 日平均清算",
     "fragility5": "辅助：±5% 内总清算密度（脆弱度）",
 }
+only = sys.argv[2].split(",") if len(sys.argv) > 2 else None
 for f, d in FACS.items():
+    if only and f not in only:
+        continue
     r = evaluate_factor(p, f, f"[{tag}] {d}")
     print(f"\n{f}  —  {d}\n{fmt(r)}")
 print("\n累计登记试验数:", n_trials())
