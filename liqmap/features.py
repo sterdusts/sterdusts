@@ -6,20 +6,22 @@
 """
 import os
 import sys
-from multiprocessing import Pool
+import multiprocessing as mp
 
 import numpy as np
 import polars as pl
 
-from liqsim import run_symbol, DATA
+from liqsim import run_symbol, DATA, CALIB_LEV, CALIB_W
 
 HORIZONS = [1, 4, 8, 24]  # 小时
 
 
-def symbol_panel(sym, churn=0.05, lev_w=None):
+def symbol_panel(sym, churn=0.05, lev_w=None, lev=None):
     kw = {"churn": churn}
     if lev_w is not None:
         kw["lev_w"] = lev_w
+    if lev is not None:
+        kw["lev"] = lev
     df = run_symbol(sym, **kw)
     if df is None:
         return None
@@ -59,21 +61,21 @@ def symbol_panel(sym, churn=0.05, lev_w=None):
 
 
 def _job(args):
-    sym, churn, lev_w = args
+    sym, churn, lev_w, lev = args
     try:
-        return symbol_panel(sym, churn, lev_w)
+        return symbol_panel(sym, churn, lev_w, lev)
     except Exception as e:  # 个别币数据异常不影响整体
         print("fail", sym, e, file=sys.stderr)
         return None
 
 
-def build_panel(churn=0.05, lev_w=None, tag="base", procs=4):
+def build_panel(churn=0.05, lev_w=None, lev=None, tag="base", procs=4):
     u = pl.read_parquet(f"{DATA}/universe.parquet").with_columns(pl.col("d").alias("month"))
     syms = sorted(u["symbol"].unique().to_list())
     syms = [s for s in syms if os.path.exists(f"{DATA}/metrics/{s}.parquet")
             and os.path.exists(f"{DATA}/kl5m/{s}.parquet")]
-    with Pool(procs) as p:
-        parts = [x for x in p.map(_job, [(s, churn, lev_w) for s in syms]) if x is not None]
+    with mp.get_context("spawn").Pool(procs) as p:  # fork 会让 polars 线程池死锁
+        parts = [x for x in p.map(_job, [(s, churn, lev_w, lev) for s in syms]) if x is not None]
     panel = pl.concat(parts)
     # 只保留当月在池内的观测
     panel = panel.with_columns(pl.col("t").dt.truncate("1mo").dt.date().alias("month")).join(
@@ -121,5 +123,8 @@ def add_funding(panel):
 if __name__ == "__main__":
     tag = sys.argv[1] if len(sys.argv) > 1 else "base"
     churn = float(sys.argv[2]) if len(sys.argv) > 2 else 0.05
-    p = build_panel(churn=churn, tag=tag)
+    if tag.startswith("calib"):
+        p = build_panel(churn=churn, lev_w=CALIB_W, lev=CALIB_LEV, tag=tag)
+    else:
+        p = build_panel(churn=churn, tag=tag)
     print(p.shape, p["t"].min(), p["t"].max(), p["symbol"].n_unique())

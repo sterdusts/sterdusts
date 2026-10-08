@@ -11,7 +11,8 @@ import polars as pl
 
 sys.path.insert(0, "/home/user/sterdusts/liqmap")
 
-snap = pl.read_parquet("/home/user/data/hl_snapshot.parquet").filter(pl.col("mid").is_not_null())
+import os
+snap = pl.read_parquet(os.environ.get("SNAP", "/home/user/data/hl_snapshot.parquet")).filter(pl.col("mid").is_not_null())
 snap = snap.with_columns(
     pl.when(pl.col("szi") > 0).then(pl.lit("long")).otherwise(pl.lit("short")).alias("side"),
     ((pl.col("liq_px") - pl.col("mid")).abs() / pl.col("mid")).alias("dist"),
