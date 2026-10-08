@@ -27,19 +27,28 @@ PARAMS = dict(objective="regression", learning_rate=0.03, num_leaves=31, min_dat
 ROUNDS = 400
 
 
-def prep(p, feats, H):
+def prep(p, feats, H, label="rank"):
+    """label="rank"：残差收益的截面排名；
+    label="net_z"：与盈亏对齐 —— (残差收益 - 资金费) 截面去极值(2.5%/97.5%)后标准化，保留右尾信息。"""
     tgt = f"res_{H}h"
+    if label == "net_z":
+        x = pl.col(f"res_{H}h") - pl.col(f"fund_{H}h")
+        lo, hi = x.quantile(0.025).over("t"), x.quantile(0.975).over("t")
+        xc = x.clip(lo, hi)
+        p = p.with_columns(((xc - xc.mean().over("t")) / xc.std().over("t")).alias("net_z"))
+        tgt = "net_z"
     p = p.filter(pl.col(tgt).is_not_null() | (pl.col("t") >= HOLDOUT_START))
     # 特征与标签都做截面排名（-0.5~0.5），缺失填 0（中位）
-    cols = feats + [tgt]
+    cols = feats + ([tgt] if label == "rank" else [])
     p = p.with_columns([((pl.col(c).rank("average").over("t") - 0.5) / pl.col(c).count().over("t") - 0.5)
                         .fill_null(0.0).fill_nan(0.0).alias(f"r_{c}") for c in cols])
-    return p.with_columns(pl.when(pl.col(tgt).is_null()).then(None).otherwise(pl.col(f"r_{tgt}")).alias("y"))
+    ycol = f"r_{tgt}" if label == "rank" else tgt
+    return p.with_columns(pl.when(pl.col(tgt).is_null()).then(None).otherwise(pl.col(ycol)).alias("y"))
 
 
 def walk_forward(p, feats, H, start=datetime(2023, 1, 1), end=HOLDOUT_START, train_months=18, seed=7,
-                 rounds=ROUNDS):
-    d = prep(p, feats, H)
+                 rounds=ROUNDS, label="rank"):
+    d = prep(p, feats, H, label)
     X_cols = [f"r_{c}" for c in feats]
     preds = []
     m = start

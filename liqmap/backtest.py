@@ -9,7 +9,7 @@ import polars as pl
 from evaluate import HOLDOUT_START
 
 
-def weights_at(g, score, q, beta_hedge=True):
+def weights_at(g, score, q, beta_hedge=True, inv_vol=False):
     g = g.filter(pl.col(score).is_not_null() & pl.col(score).is_finite())
     n = g.height
     if n < 15:
@@ -19,16 +19,25 @@ def weights_at(g, score, q, beta_hedge=True):
     short = g.head(k)["symbol"].to_list()
     long = g.tail(k)["symbol"].to_list()
     beta = dict(zip(g["symbol"], g["beta"]))
-    w = {s: 0.5 / k for s in long}
-    for s in short:
-        w[s] = w.get(s, 0) - 0.5 / k
+    if inv_vol:  # 腿内按波动率倒数分配，避免高波动币主导风险
+        vol = dict(zip(g["symbol"], g["vol_24h"].fill_null(g["vol_24h"].median())))
+        iv = lambda ss: {s: 1 / max(vol.get(s) or 0.05, 0.01) for s in ss}  # noqa: E731
+        lw, sw = iv(long), iv(short)
+        w = {s: 0.5 * x / sum(lw.values()) for s, x in lw.items()}
+        for s, x in sw.items():
+            w[s] = w.get(s, 0) - 0.5 * x / sum(sw.values())
+    else:
+        w = {s: 0.5 / k for s in long}
+        for s in short:
+            w[s] = w.get(s, 0) - 0.5 / k
     if beta_hedge:
         b = sum(wi * beta.get(s, 1.0) for s, wi in w.items())
         w["BTCUSDT"] = w.get("BTCUSDT", 0) - b
     return w
 
 
-def run_backtest(p, score, H=8, q=0.2, fee=0.0007, smooth=0.0, beta_hedge=True, start=None, end=None):
+def run_backtest(p, score, H=8, q=0.2, fee=0.0007, smooth=0.0, beta_hedge=True, start=None, end=None,
+                 inv_vol=False):
     """返回每期净收益序列（DataFrame: t, gross, cost, funding, net, btc）。"""
     df = p.filter(pl.col("t").dt.hour() % H == 0)
     if start is not None:
@@ -44,7 +53,7 @@ def run_backtest(p, score, H=8, q=0.2, fee=0.0007, smooth=0.0, beta_hedge=True, 
     prev = {}
     rows = []
     for (t,), g in df.group_by("t", maintain_order=True):
-        w = weights_at(g, score, q, beta_hedge)
+        w = weights_at(g, score, q, beta_hedge, inv_vol)
         if not w or btc_by_t.get(t) is None:
             continue
         r = dict(zip(g["symbol"], g[fwd]))
