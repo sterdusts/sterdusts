@@ -48,4 +48,4 @@
 1. 在服务器上部署 `recorder.py`（币安/Bybit/OKX/Hyperliquid），开始积累真实强平、盘口和 Hyperliquid 持仓数据。
 2. 按冻结配置做模拟盘（关卡 4），2–3 个月，对比实盘与回测的 IC 和成本。
 3. 用录制数据重新检验方向 A（真实强平量替代代理估计）；在 5090 上试截面 Transformer 作为组合器。
-4. 试验记录见 `trials.jsonl`（25 条），锁定验证集使用记录见 `holdout_log.jsonl`（1/3）。
+4. 试验记录见 `trials.jsonl`（25 条），锁定验证集使用记录见 `holdout_log.jsonl`（已用 2/3）。
