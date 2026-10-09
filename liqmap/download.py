@@ -137,7 +137,7 @@ def main():
         pl.concat(dfs).sort("symbol", "calc_time").write_parquet(f"{OUT}/funding.parquet")
 
 
-if __name__ == "__main__" and sys.argv[1] != "universe":
+if __name__ == "__main__" and sys.argv[1] not in ("universe", "extend"):
     main()
 
 
@@ -190,3 +190,35 @@ def universe_mode(batch=25):
 
 if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "universe":
     universe_mode()
+
+
+def extend_mode(days=2):
+    """补齐每个币离开选币池后下个月的头 `days` 天（月末持仓的未来收益需要），并与已有文件合并。"""
+    ex = pl.read_parquet(f"{OUT}/extra_months.parquet")
+    kl, mt, fr = [], [], []
+    for s, m in ex.iter_rows():
+        fr.append((f"{BASE}/monthly/fundingRate/{s}/{s}-fundingRate-{m}.zip", s))
+        for dd in range(1, days + 1):
+            day = f"{m}-{dd:02d}"
+            kl.append((f"{BASE}/daily/klines/{s}/5m/{s}-5m-{day}.zip", s))
+            mt.append((f"{BASE}/daily/metrics/{s}/{s}-metrics-{day}.zip", s))
+    k = asyncio.run(run(kl, parse_kl))
+    f = asyncio.run(run(fr, parse_funding))
+    d = asyncio.run(run(mt, parse_metrics, conc=64))
+    # 当前月（2026-10）还没有月度资金费文件：用 REST 不可用，按日 K 线只需价格，资金费缺失时按 0 处理
+    for parts, sub, key in ((k, "kl5m", "open_time"), (d, "metrics", "ts")):
+        if not parts:
+            continue
+        new = pl.concat(parts)
+        for (s,), g in new.group_by("symbol"):
+            fn = f"{OUT}/{sub}/{s}.parquet"
+            old = pl.read_parquet(fn) if os.path.exists(fn) else g.clear()
+            pl.concat([old, g.select(old.columns)]).unique(key, keep="last").sort(key).write_parquet(fn)
+        print(sub, "merged rows:", new.height)
+    if f:
+        pl.concat(f).write_parquet(f"{OUT}/funding_extra.parquet")
+        print("funding rows:", sum(x.height for x in f))
+
+
+if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "extend":
+    extend_mode()
