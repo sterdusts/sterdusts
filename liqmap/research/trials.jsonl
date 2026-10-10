@@ -33,3 +33,7 @@
 {"ts": "2026-10-09 21:04:50", "name": "retro_c08_event_returns", "desc": "审查期 c08：资金费结算事件 30 分钟收益均方根与尾部分布（补登记：找方向工作流审查期未经许可的收益查看；均限于 2026-04-01 之前数据）", "result": {"retro": true}}
 {"ts": "2026-10-09 21:04:50", "name": "retro_c02_po_attrib", "desc": "审查期 c02/方向1：高波动空头组贡献最差5%交易日亏损93%、分年收益归因（补登记：找方向工作流审查期未经许可的收益查看；均限于 2026-04-01 之前数据）", "result": {"retro": true}}
 {"ts": "2026-10-09 21:04:50", "name": "fix_rerun_frozen_v1", "desc": "10-09 修复月末缺失收益后用冻结配置重跑（数据修复，非选择试验；锁定集第2次使用）", "result": {"dev_sharpe_mixed": 1.11, "dev_sharpe_maker": 1.31, "holdout_sharpe_mixed": 2.2}}
+{"ts": "2026-10-10 10:32:46", "name": "retro_flow_audit_sameday_ret_diag", "desc": "资金流检测器审计：MT1/MT2/MT3 与同日或过去 BTC 收益的诊断（不含未来收益）", "result": {"retro": true}}
+{"ts": "2026-10-10 10:32:46", "name": "retro_xchg_align_qa", "desc": "资金流数据对齐 QA：Upbit/Coinbase 与币安同期收益相关（lag0 0.954 / 0.998）", "result": {"retro": true}}
+{"ts": "2026-10-10 10:32:46", "name": "d1p_spot_lead_ic_v1", "desc": "[预登记，待运行] D1′ 现货主动买入领先永续：截面正交化 IC（主周期 7d），规格见 research/flow_prereg_2026-10-10.json", "result": {"status": "registered_pending"}}
+{"ts": "2026-10-10 10:32:46", "name": "mt1p_stable_issuance_v2", "desc": "[预登记，待运行] MT1′ 稳定币净发行加速 → BTC 腿择时乘数，规格见 research/flow_prereg_2026-10-10.json", "result": {"status": "registered_pending"}}
