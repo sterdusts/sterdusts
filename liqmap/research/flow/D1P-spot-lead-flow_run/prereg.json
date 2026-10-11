@@ -1,0 +1,102 @@
+{
+ "G0": {
+  "C_d_median": 95.0,
+  "frac_days_C_ge_40": 1.0,
+  "n_days": 1542,
+  "ols_R2_median": 0.4629212424147087,
+  "ols_R2_days": 1542,
+  "events_kept": {
+   "D1": 613,
+   "C1": 87,
+   "C2": 92,
+   "C3": 2450,
+   "C4": 11223,
+   "C12": 179
+  },
+  "events_raw": {
+   "D1": 1373,
+   "C1": 132,
+   "C2": 126,
+   "C3": 5741,
+   "C4": 47535
+  },
+  "events_kept_by_year": {
+   "D1": {
+    "2022": 133,
+    "2023": 145,
+    "2024": 177,
+    "2025": 132,
+    "2026": 26
+   },
+   "C1": {
+    "2022": 6,
+    "2023": 27,
+    "2024": 33,
+    "2025": 18,
+    "2026": 3
+   },
+   "C2": {
+    "2022": 14,
+    "2023": 27,
+    "2024": 29,
+    "2025": 20,
+    "2026": 2
+   },
+   "C3": {
+    "2022": 450,
+    "2023": 596,
+    "2024": 803,
+    "2025": 529,
+    "2026": 72
+   },
+   "C4": {
+    "2022": 2432,
+    "2023": 2488,
+    "2024": 3342,
+    "2025": 2631,
+    "2026": 330
+   },
+   "C12": {
+    "2022": 20,
+    "2023": 54,
+    "2024": 62,
+    "2025": 38,
+    "2026": 5
+   }
+  },
+  "C12_merged": true,
+  "C12_rule": "C1 and C2 kept both >=300 -> judged separately; else C12 = C1kept OR C2kept judged, C1/C2 reported only",
+  "S_d_median": 95.0,
+  "C_dM_median": 42.0,
+  "metrics_pooled_R2": 0.24263778948302972,
+  "zS5_availability_in_E_by_year": {
+   "2022": 0.9712372411351702,
+   "2023": 0.9831932773109243,
+   "2024": 0.9268103321652643,
+   "2025": 0.8058211274902275,
+   "2026": 0.7373641946150212
+  },
+  "checks": {
+   "C_d_median>=50": true,
+   "frac_days_C>=40 >=0.90": true,
+   "R2_median<=0.70": true,
+   "D1_kept>=300": true
+  },
+  "passed": true,
+  "MDE": {
+   "n_cs": 95.0,
+   "weeks_expected": 220.28571428571428,
+   "SE_ICbar": 0.006190366639041296,
+   "IC_at_t3": 0.018571099917123888
+  },
+  "features_sha256": "e3654c28c077b4bc0eea2fbd4e92306556441c304a0c6aa98d6ef4807e62ce36",
+  "script_sha256": "15beca58d8085b2089b70fb7734cd1801e178ebb019b4af0f2841bb90e1b711f",
+  "spec": {
+   "file": "/home/user/sterdusts/liqmap/research/flow_prereg_2026-10-10.json",
+   "commit": "b3f95f8",
+   "id": "D1P-spot-lead-flow",
+   "trial_name": "d1p_spot_lead_ic_v1"
+  },
+  "holdout_guard": "perp/spot inputs filtered at scan to date<=2026-03-22 & in_holdout==False; label columns never selected (asserted)"
+ }
+}

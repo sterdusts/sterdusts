@@ -1,0 +1,115 @@
+{
+ "spec_id": "MT1P-stable-issuance-v2",
+ "trial_name": "mt1p_stable_issuance_v2",
+ "spec_file": "/home/user/sterdusts/liqmap/research/flow_prereg_2026-10-10.json",
+ "spec_commit": "b3f95f8",
+ "spec_sha256": "829019feaaaec1fb87eac96bed1c7b76b4e559454cd74b1ddb79332ee1233da9",
+ "supersedes": "/home/user/data/flow/mkt_timing_prereg/prereg.json 的 MT1（v1）。按规则不修改已有文件，故 superseded 标记写在本文件而非 v1 prereg.json。",
+ "build_signals_v2.py_sha256": "2a26669a3a298b06c75cab957a8ead499ae105b7979d7478c2fc960887eef5e1",
+ "mkt_timing_signals_v2.parquet_sha256": "2fcfcd763d5f156467a829dc3e6187dccc62d1646415d98190ad2e18dd58ad91",
+ "mt1p_btc_leg_multiplier_dev.parquet_sha256": "03c8fe0333a6dc089c19e89517e500003093a23129518b5dd870b0bbfededbf7",
+ "g0.py_sha256": "57d2f5ccca02731c9d7a7c1332f44aaac5e55e0de1b1c4321813a8851897c45f",
+ "run_test_mt1p.py_sha256": "1b882c1405ba0252a2a1df05d1c8c87f91e1470c109e76ec4b00c60c8b0c642e",
+ "raw_ext_sha256": {
+  "sc_11.json": "eb090972afb02d0cc406ec29dd8f7ade3f940409c43835f3c0ebb6b277bea196",
+  "sc_120.json": "e65a55409c3741123350eef4c5f689bb0b27fbee629f9c6ba811b734bfbac710",
+  "sc_17.json": "22fd95add0619248ff6d6d0e32fecde5c476c52cf4f34a24b14a2313203f1a3a",
+  "sc_19.json": "1ef2acd5a6fcc85ddf0b59d4958bbdbce9eae38d3aa1e48f62e4ff226939b15f",
+  "sc_250.json": "f31da091f7df34509e740d48f54199fa5c1ee8b386be5e4c14f10e671e5ce5f9",
+  "sc_262.json": "eff6f699aec91b6221fd23c0f9a0f9add0d3d78e00d243cd0d53cbea42cd1f96",
+  "sc_27.json": "084c09e9549e050cacd341cf78c0dda50fd3a6d80f168746f5bd201a9de52125",
+  "sc_286.json": "cc0ac09a804f92cb300c89fa87b55d3b00d1ee7a974d4956388089074a462d1f",
+  "sc_306.json": "7a22bf72f31de838603a8fe247466c67b032088e9d3d6665defb986925c684f1"
+ },
+ "frozen_params": {
+  "basket": [
+   "usdt",
+   "usdc",
+   "busd",
+   "fdusd",
+   "tusd"
+  ],
+  "fill": "首个非空后前向填充，之前记 0",
+  "clip": 0.01,
+  "windows": [
+   14,
+   166,
+   180
+  ],
+  "state": "+1 if I>0 else -1",
+  "h_primary": 14,
+  "nw_lag": 28,
+  "bootstrap": {
+   "mean_block": 60,
+   "B": 2000,
+   "seed": 20261010
+  }
+ },
+ "doc_corrections_vs_v1": [
+  "删除 v1 对 2022-01-02 的人工置 0（v2 中 2022-01-02 dl=+2.97% 被 clip 到 +1%）",
+  "BUSD 6 个缺日（2024-01-13, 2025-08-13/17/19/21/23）改为前向填充，消除假 V 形",
+  "2024-04-18..22 的 USDC 振荡持续 5 天；开发期被截断的是 12 天，不是 13 天（文档更正，未重新计数）"
+ ],
+ "G0": {
+  "agree_v2_v1_dev_2022-01-01..2026-03-31": 0.9954867827208252,
+  "disagree_days_dev_2022-01-01..2026-03-31": 7,
+  "switches_dev": 104,
+  "switches_per_year": 24.49129593810445,
+  "switches_by_year": {
+   "2022": 16,
+   "2023": 31,
+   "2024": 23,
+   "2025": 28,
+   "2026": 6
+  },
+  "flicker_1day_runs": 22,
+  "runs_ge30": 17,
+  "runs_ge14": 35,
+  "r2_main": {
+   "sample": "main_2022-01-01..2026-03-17",
+   "n": 1537,
+   "lpm_r2": 0.22292187419555853,
+   "lpm_adj_r2": 0.21577398079131271,
+   "logit_auc_in_sample": 0.7816574439695753,
+   "logit_pseudo_r2": 0.18503848092437203
+  },
+  "r2_dev": {
+   "sample": "dev_2022-01-01..2026-03-31",
+   "n": 1551,
+   "lpm_r2": 0.22282159008603308,
+   "lpm_adj_r2": 0.21573793270400476,
+   "logit_auc_in_sample": 0.7818597535626985,
+   "logit_pseudo_r2": 0.1851566596351687
+  },
+  "G0_r2_used": 0.22292187419555853,
+  "G0_pass": true
+ },
+ "gate1_summary": {
+  "P1": false,
+  "P2": false,
+  "P3": false,
+  "P4": true,
+  "P5": false,
+  "P6": false,
+  "P7": false,
+  "P8": false,
+  "P9": false,
+  "P10": false,
+  "P11": true,
+  "P12": false,
+  "P13": true
+ },
+ "gate1_pass": false,
+ "kill": {
+  "K1": true,
+  "K2": true,
+  "K3": true,
+  "K4": true,
+  "K6": true,
+  "K9": false,
+  "K10": false,
+  "K11": true
+ },
+ "killed": true,
+ "gate2": "未运行：关卡 2 只对关卡 1 全部通过者执行。"
+}

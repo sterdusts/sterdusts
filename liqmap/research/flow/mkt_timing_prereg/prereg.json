@@ -1,0 +1,64 @@
+{
+ "created_utc": "2026-10-10",
+ "status": "预登记（未做任何信号-收益统计）。参数冻结，检验前须在 trials.jsonl 登记 #36 MT1、#37 MT2、#38 MT3。",
+ "build_script": "build_signals.py",
+ "build_script_sha256": "0f1bee57d6cfad5141143425437267e154758fccce547ae388e2b23c55aa010b",
+ "signals_file": "mkt_timing_signals.parquet",
+ "signals_sha256": "1382247ca2d667206893f673659efb70903fdfe21bbed1494ab1229cd5df3734",
+ "time_convention": "行 date=d；全部信号/控制在 decision_at=d+1 00:00 UTC 可知（MT1 的 value(D=d) 在 d 06:00 已可知）。标签 y_h(d)=ln(close_{d+h}/close_d)-fund_h，close_d 即 d+1 00:00 的价格。",
+ "dev_window": "d in [2022-01-01, 2026-03-31-h]；in_holdout 行禁用；锁定集已用 2/3，本检测器不得单独使用锁定集。",
+ "label": "BTCUSDT 永续：h=7/14 用 perp_daily fwd_h-fund_h；h=30 用 ln(close_{d+30}/close_d)-sum(funding_1d[d+1..d+30])。",
+ "controls": {
+  "c_mom7": "ln(close_d/close_{d-7})",
+  "c_mom30": "ln(close_d/close_{d-30})",
+  "c_rv30": "std(ret_1d[d-29..d])",
+  "c_fund7": "sum(funding_1d[d-6..d])",
+  "c_doi7": "ln(oi_d/oi_{d-7})",
+  "c_tkr7": "现货 USDT 交易对（剔除 BTC 与稳定币/黄金 USDC,FDUSD,BUSD,TUSD,U,USD1,USTC,PAXG,XAUT）7 日 sum(tbqv_usdt_USDT)/sum(qv_usdt_USDT)-0.5"
+ },
+ "detectors": {
+  "MT1": {
+   "name": "稳定币净发行脉冲",
+   "state": "mt1_state=+1 若 mt1_I>0",
+   "sign": "+",
+   "h_primary": 14,
+   "formula": "F=usdt_total+usdc_total+busd_total+fdusd_total+tusd_total（枚，null 记 0）；dl=ΔlnF，dl(2022-01-02):=0，clip ±1%；L=cumsum；I=[L(D)-L(D-14)]-(14/166)[L(D-14)-L(D-180)]"
+  },
+  "MT2": {
+   "name": "Coinbase 溢价持续性（美国现货买盘）",
+   "state": "mt2_state=+1 若 mt2_S>0",
+   "sign": "+",
+   "h_primary": 7,
+   "formula": "p=prem_adj_median(BTC)，n_hours_prem_adj<20 记 null；P7=mean(p[d-6..d],>=5)；B=median(p[d-97..d-7],>=60)；S=P7-B"
+  },
+  "MT3": {
+   "name": "泡菜溢价过热（反向）",
+   "state": "mt3_state=+1 若 mt3_S<=0",
+   "sign": "-（溢价高于常态→看淡）",
+   "h_primary": 30,
+   "formula": "k=kimchi_fx_ecb；K7=mean(k[d-6..d])；KB=median(k[d-97..d-7],>=60)；S=K7-KB"
+  }
+ },
+ "gate1_pass_all": [
+  "P1 y_h=a+β·state+γ'controls，Newey-West lag=2h，β 符号与预登记一致且单侧 t>=1.65",
+  "P2 循环平移安慰剂（平移 90..T-90 天）：观测 t 超过平移分布 95 分位",
+  "P3 h 个非重叠起点子样本：t 的中位数>=1.3，>=80% 起点符号正确",
+  "P4 2022/2023/2024/2025-01..2026-03 四段中 >=3 段符号正确",
+  "P5 状态再滞后 1 天：β 保留 >=50% 且同号",
+  "P6 加入控制后 β >= 不加控制时的 50%",
+  "P7 平稳块自助（平均块长 60 天，2000 次）β 的 90% 区间不含 0"
+ ],
+ "kill_any": [
+  "K1 β 反号或 |t|<1.0：直接放弃，禁止改窗口/阈值/周期重试",
+  "K2 控制后 β 缩水 >50%：判为动量/资金费代理",
+  "K3 删去 β 贡献最大的 60 天块后反号：单一事件驱动",
+  "K4 滞后 1 天后反号：收盘异步/时点伪迹",
+  "K5 MT1：上线前录制 DefiLlama 实时快照 >=60 天，实时与修订后历史算出的 mt1_state 不一致 >10% 天 → 不可交易",
+  "K6 MT2：2024-01-11（现货 ETF）前后两段 β 反号 → 结构断点",
+  "K7 关卡 2 扣费后择时收益提升 <=0"
+ ],
+ "gate2": "只对关卡 1 全部通过者：(a) 单独 BTC 多/空仓位 e∈{0,1} 用 backtest.criteria(H=24) 判 4 条标准（BTC 累计<=0 时判标准 5），费率 0.05% 并报 0.07%；(b) 叠加到冻结组合（873b37d）的 BTC 腿，乘数 m∈{0.5,1.0}，要求开发期夏普提升 >=0.10、波动对齐回撤不变差、BTC 下跌自然季度的 BTC 腿收益高于无择时；(c) 紧缩夏普（试验数取当时 trials.jsonl 行数）概率 >=0.9。",
+ "composite_rule": "若 >=2 个通过关卡 1：m=0.5+0.5×mean(通过者的 1[state=+1])，作为一个新登记试验，不再挑选子集。",
+ "not_tested_and_why": "全市场现货主动净买入作为控制变量 c_tkr7 而非检测器（日级与当日收益几乎机械同步、BTC 零手续费期污染）；Tron 分链、USDT-USD 基差、极端阈值版泡菜（开发期仅约 7 段）均不检验，若要检验需另行登记。",
+ "known_contamination": "三条思路都是公开的'链上/资金流指标'传说，部分正来自 2022-2026 的行情（如 2024-03 泡菜溢价见顶、2024-25 ETF 期 Coinbase 溢价），开发期通过只算弱证据；MT3 的 90 日基准是在看过信号本身的描述统计（365 日基准使 2022 年 82% 天处于有利状态）后选定，未看收益。"
+}
